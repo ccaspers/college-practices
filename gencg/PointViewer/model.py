@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import itertools
 
 
@@ -55,5 +56,5 @@ def _rotatePoint(p, angleInDegree):
 
 
 def parse(filename):
-    return Model([[float(z) for z in t.split()] for t in file(filename).readlines()])
+    return Model([np.array(t.split(), np.float) for t in file(filename).readlines()])
 

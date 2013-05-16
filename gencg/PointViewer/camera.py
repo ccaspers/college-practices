@@ -21,10 +21,12 @@ class Camera(object):
         self.fullMatrix = self.MLookAt
 
     def renderModel(self, model):
-        points = [np.array(tuple(point)) for point in model.points]
-        points = [np.resize(v, (1,4)) * self.fullMatrix for v in points]
+        points = [np.copy(point) for point in model.points]
+        [t.resize((1,4), refcheck=False) for t in points]
+        [np.put(t,3,1) for t in points]
+        points = [v * self.fullMatrix for v in points]
         points = [point.getA1() for point in points]
-        points = [(x / w, y / w, z / w) for x, y, z, w in points]
+        points = [point / point[3] for point in points]
         # Transform Perspective
         return Model(points)
 
