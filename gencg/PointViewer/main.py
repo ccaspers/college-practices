@@ -4,8 +4,8 @@ from camera import Camera
 from model import Model
 import model
 
-WIDTH = 400         # width of canvas
-HEIGHT = 400        # height of canvas
+WIDTH = 900         # width of canvas
+HEIGHT = 900        # height of canvas
 
 HPSIZE = 0.5        # radius of point
 COLOR = "#0000FF"   # blue
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     bExit = Button(eFr, text="Quit", command=(lambda root=mw: quit(root)))
     bExit.pack()
 
-    modelObj = model.parse(sys.argv[1]).normalized()
+    modelObj = model.parse(sys.argv[1])
     cam.setupCameraForModel(modelObj)
 
     draw()
