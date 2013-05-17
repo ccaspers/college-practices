@@ -24,6 +24,9 @@ def quit(root=None):
 
 def draw():
     """ draw points """
+    global pointList
+    can.delete(*pointList)
+    pointList = []
     points = cam.renderModel(modelObj).points
     for point in transformToWindowCoordinates(points):
         x, y = point
@@ -43,15 +46,13 @@ def rotYn():
 
 
 def rotateModel(angleInDegree):
-    global modelObj, pointList
-    can.delete(*pointList)
-    pointList = []
+    global modelObj
     modelObj = modelObj.rotated(angleInDegree)
     draw()
 
 
 def transformToWindowCoordinates(points):
-    return [[t[0] * WIDTH / 2 + WIDTH / 2, t[1] * (-1) * HEIGHT / 2 + HEIGHT / 2] for t in points]
+    return [[(1 + t[0]) * WIDTH / 2 , (1 - t[1]) * HEIGHT / 2] for t in points]
 
 if __name__ == "__main__":
     #check parameters
