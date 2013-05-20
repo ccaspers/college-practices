@@ -24,31 +24,19 @@ def intersect(line1, line2):
     line2Hom = convertToHomVec(line2)
 
     point = intersectionPoint(line1Hom, line2Hom)
-    print point
+    xS = point[0]
+    minX1, maxX1 = min(line1[0][0], line1[1][0]), max(line1[0][0], line1[1][0])
+    xP= min(line2[0][0], line2[1][0])
 
-    minX, maxX = min(line1[0][0], line1[1][0]), max(line1[0][0], line1[1][0])
-    y = yCoordinateAtX(line1Hom, point[0])
-
-    if minX < point[0] < maxX:
-        if point[1] > y:
-            return True
+    if minX1 <= point[0] <= maxX1 and xP < xS:
+        return True
     return False
-
-
-def yCoordinateAtX(line, x):
-    print line
-    print x
-    t = (line / line[0]) * x
-    z = t[1]
-    print "TTTTTTTTTTTTTT::::::::::::::", z
-    return z
-
 
 def convertToHomVec(line):
     p1 = np.array(tuple(line[0][:2]) + (1,), np.float)
     p2 = np.array(tuple(line[1][:2]) + (1,), np.float)
     cross = np.cross(p1, p2)
-    return cross / cross[2]
+    return cross
 
 
 def intersectionPoint(line1, line2):
@@ -120,17 +108,26 @@ def clearAll():
 
 def mouseEvent(event):
     """ process mouse events """
-    global numPolyPoints
     # get point coordinates Last entry
     # True if p is in Polygon False otherwise
-    p = [event.x, event.y, True]
+    testPoint(event.x, event.y)
+    draw()
+
+def testPoint(x, y):
+    global numPolyPoints
+    p = [x, y, True]
     pointList.append(p)
     if not testPoints:  # append to polygon
         numPolyPoints = len(pointList)
     else:  # test wether point is in polygon or not
         p[2] = pointInPolygon(p)
+        
+def autoTest():
+    switchOnTest()
+    for x in range(0, WIDTH, 10):
+        for y in range(0, HEIGHT, 10):
+            testPoint(x, y)
     draw()
-
 
 if __name__ == "__main__":
     # check parameters
@@ -154,6 +151,8 @@ if __name__ == "__main__":
     bClear.pack(side="left")
     bTest = Button(cFr, text="Test points", command=switchOnTest)
     bTest.pack(side="left")
+    bAutoTest = Button(cFr, text="Autotest", command=autoTest)
+    bAutoTest.pack(side="left")
     eFr = Frame(mw)
     eFr.pack(side="right")
     bExit = Button(eFr, text="Quit", command=(lambda root=mw: quit(root)))
