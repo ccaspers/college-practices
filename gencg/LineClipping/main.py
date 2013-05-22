@@ -94,46 +94,33 @@ def lineCase(line):
         
     
 def calcNewLine(line, lc, clipRegion):
+    newLine = []
+    
     x0,y0 = line[0].coords
     x1,y1 = line[1].coords
-
+    
     xMin, yMin = clipRegion[0]
     xMax, yMax = clipRegion[1]
-
-    code1 = line[0].reCode
-    code2 = line[1].reCode
- 
-    calcY = lambda x: y0 + (y1 - y0) * (x - x0) / (x1 - x0) 
-    calcX = lambda y: x0 + (x1 - x0) * (y - y0) / (y1 - y0)
     
-    outcodeOut = code1 if code1 else code2
-    print lc, outcodeOut
-    if outcodeOut & 1:
-        y = calcY(xMin)
-        x = xMin
-    elif outcodeOut & 2:
-        y = calcY(xMax)
-        x = xMax
-    elif outcodeOut & 4:
-        x = calcX(yMin)
-        y = yMin
-    elif outcodeOut & 8:
-        x = calcX(yMax)
-        y = yMax
+    calcY = lambda xValue: [xValue, y0 + (y1 - y0) * (xValue - x0) / (x1 - x0)]
+    calcX = lambda yValue: [x0 + (x1 - x0) * (yValue - y0) / (y1 - y0), yValue]
+
+    if lc & 1:
+        newLine.append(calcY(xMin))
+    if lc & 2: 
+        newLine.append(calcY(xMax))
+    if lc & 4:
+        newLine.append(calcX(yMin))
+    if lc & 8:
+        newLine.append(calcX(yMax))
+
+    newLine = [Point(t, clipRegion) for t in newLine] # create points
+    newLine = [t for t in newLine if t.reCode == 0]   # filter points outside of box
         
-    if outcodeOut == code1:
-        x0 = x
-        y0 = y
-    else:
-        x1 = x
-        y1 = y
+    if len(newLine) == 1:
+        newLine.append(line[0] if line[0].reCode == 0 else line[1])
         
-    Line = [Point([x0,y0], clipRegion), Point([x1,y1], clipRegion)]
-    code1, code2 = Line[0].reCode, Line[1].reCode      
-      
-    if (not code1 | code2) or (code1 & code2): 
-        return [(x0, y0), (x1, y1)]
-    return calcNewLine(Line, lineCase(Line), clipRegion)
+    return [t.coords for t in newLine]
         
     
 
