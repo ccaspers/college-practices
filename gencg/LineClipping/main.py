@@ -93,9 +93,9 @@ def lineCase(line):
         return union
         
     
-def calcNewLine(line, lc, clipRegion):
+def calcNewLine(line, lineCode, clipRegion):
+    left, right, bottom, top = 1, 2, 4, 8
     newLine = []
-    
     x0,y0 = line[0].coords
     x1,y1 = line[1].coords
     
@@ -105,17 +105,17 @@ def calcNewLine(line, lc, clipRegion):
     calcY = lambda xValue: [xValue, y0 + (y1 - y0) * (xValue - x0) / (x1 - x0)]
     calcX = lambda yValue: [x0 + (x1 - x0) * (yValue - y0) / (y1 - y0), yValue]
 
-    if lc & 1:
+    if lineCode & left:
         newLine.append(calcY(xMin))
-    if lc & 2: 
+    if lineCode & right:
         newLine.append(calcY(xMax))
-    if lc & 4:
+    if lineCode & bottom:
         newLine.append(calcX(yMin))
-    if lc & 8:
+    if lineCode & top:
         newLine.append(calcX(yMax))
 
     newLine = [Point(t, clipRegion) for t in newLine] # create points
-    newLine = [t for t in newLine if t.reCode == 0]   # filter points outside of box
+    newLine = [t for t in newLine if t.reCode == 0]   # remove points outside of box
         
     if len(newLine) == 1:
         newLine.append(line[0] if line[0].reCode == 0 else line[1])
