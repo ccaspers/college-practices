@@ -26,9 +26,9 @@ def intersect(line1, line2):
     point = intersectionPoint(line1Hom, line2Hom)
     xS = point[0]
     minX1, maxX1 = min(line1[0][0], line1[1][0]), max(line1[0][0], line1[1][0])
-    xP= min(line2[0][0], line2[1][0])
+    xP = min(line2[0][0], line2[1][0])
 
-    if minX1 <= point[0] <= maxX1 and xP <= xS:
+    if minX1 < point[0] <= maxX1 and xP <= xS:
         return True
     return False
 
