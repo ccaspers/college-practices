@@ -94,25 +94,29 @@ def lineCase(line):
         
     
 def calcNewLine(line, lineCode, clipRegion):
-    left, right, bottom, top = 1, 2, 4, 8
     newLine = []
+    left, right, bottom, top = 1, 2, 4, 8
+    
     x0,y0 = line[0].coords
     x1,y1 = line[1].coords
     
     xMin, yMin = clipRegion[0]
     xMax, yMax = clipRegion[1]
     
-    calcY = lambda xValue: [xValue, y0 + (y1 - y0) * (xValue - x0) / (x1 - x0)]
-    calcX = lambda yValue: [x0 + (x1 - x0) * (yValue - y0) / (y1 - y0), yValue]
+    intersectionWithYAt = lambda t: [t, y0 + (y1 - y0) * (t - x0) / (x1 - x0)]
+    intersectionWithXAt = lambda t: [x0 + (x1 - x0) * (t - y0) / (y1 - y0), t]
 
     if lineCode & left:
-        newLine.append(calcY(xMin))
+        newLine.append(intersectionWithYAt(xMin))
+        
     if lineCode & right:
-        newLine.append(calcY(xMax))
+        newLine.append(intersectionWithYAt(xMax))
+        
     if lineCode & bottom:
-        newLine.append(calcX(yMin))
+        newLine.append(intersectionWithXAt(yMin))
+        
     if lineCode & top:
-        newLine.append(calcX(yMax))
+        newLine.append(intersectionWithXAt(yMax))
 
     newLine = [Point(t, clipRegion) for t in newLine] # create points
     newLine = [t for t in newLine if t.reCode == 0]   # remove points outside of box
