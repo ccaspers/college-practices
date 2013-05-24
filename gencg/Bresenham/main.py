@@ -1,7 +1,7 @@
 from Tkinter import *
 from Canvas import *
 import sys
-
+import math
 
 WIDTH  = 400 # width of canvas
 HEIGHT = 400 # height of canvas
@@ -41,22 +41,60 @@ def drawLines():
 
 def drawBresenhamLine(p,q):
     """ draw a line using bresenhams algorithm """
-    s = 2 * HPSIZE
-    a, b = q[1] - p[1], p[0] - q[0]
-    d = 2 * a + b
-    IncE = 2 * a
-    IncNE = 2 * (a + b)
-    y = s * (p[1] / s)
-    for x in range(s *(p[0] / s), s * ((q[0] + 1) / s), s):
-        element = can.create_rectangle(x, y,
-                       x+s, y+s,
-                       fill=FCOLOR, outline=BCOLOR)
-        elementList.append(element)   
+    x0, y0, x1, y1 = normalizeLine(p,q)
+    if x1 != x0:
+        slope = (float(y1) - float(y0)) / (float(x1) - float(x0))
+    else:
+        slope = float('inf')
+    if math.fabs(slope) > 1:
+        x0, y0, x1, y1 = y0, x0, y1, x1
+        
+    swapped = True if math.fabs(slope) > 1 else False     
+    negative = True if slope < 0 else False
+    
+    a, b = y1 - y0, x0 - x1
+    d = 2*a + b
+    IncE = 2*a
+    IncNE = 2*(a + b)
+    
+    y = y0 
+    for x in range(x0, x1 + 1) :
+        if swapped and negative:
+            print "AAA BOTH"
+        if swapped:
+            drawGridPixel(y,x)
+        elif negative:
+            print "NEGATIVE"
+        else:
+            drawGridPixel(x,y)
+
         if d <= 0: 
             d += IncE
         else:
-            d += IncNE 
-            y += s 
+            d += IncNE
+            y += 1
+
+
+
+def normalizeLine(p,q):
+    x0, y0 = convertToGridCoordinates(p)
+    x1, y1 = convertToGridCoordinates(q) 
+    
+    if x0 > x1 or (x0 == x1 and y0 > y1): # always draw from left to right
+        x0, y0, x1, y1 = x1, y1, x0, y0
+    return x0, y0, x1, y1
+
+def drawGridPixel(x, y):
+    x0 = x * 2 * HPSIZE
+    y0 = y * 2 * HPSIZE
+    x1 = x0 + 2 * HPSIZE
+    y1 = y0 + 2 * HPSIZE
+    element = can.create_rectangle(x0, y0, x1, y1,
+                   fill=FCOLOR, outline=BCOLOR)
+    elementList.append(element)   
+    
+def convertToGridCoordinates(p):
+    return [t // (2*HPSIZE) for t in p]
 
 def quit(root=None):
     """ quit programm """
