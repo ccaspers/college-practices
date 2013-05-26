@@ -25,9 +25,9 @@ def display():
     TRIANGLE_STRIP.bind()
     glVertexPointerf(TRIANGLE_STRIP)
     glEnableClientState(GL_VERTEX_ARRAY)
-    glDrawArrays(GL_POLYGON, 0, 6)
-    glDisableClientState(GL_VERTEX_ARRAY)
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, len(TRIANGLE_STRIP))
     TRIANGLE_STRIP.unbind()
+    glDisableClientState(GL_VERTEX_ARRAY)
     
     glFlush()
 
