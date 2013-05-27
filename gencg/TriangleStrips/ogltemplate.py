@@ -80,7 +80,7 @@ def parse_trianglestrip():
     global TRIANGLE_STRIP
     strip = []
     
-    for line in file('triangles.strip'):
+    for line in file('assets/triangles.strip'):
         coords = line.split(':')[1]
         coords = [float(t) for t in coords.strip().split()]
         strip.append(coords)
