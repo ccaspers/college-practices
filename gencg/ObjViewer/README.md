@@ -21,19 +21,19 @@ python main.py <obj-file>
    - `F1` - Hintergrundfarbe wechseln
    - `F2` - Wireframefarbe wechseln
    - `F3` - Projektion wechseln
- 
+
  * Rotation  
    Großbuchstaben: positive Rotation, Kleinbuchstaben negative Rotation
    - `X` - Rotation um X-Achse
    - `Y` - Rotation um Y-Achse
    - `Z` - Rotation um Z-Achse
-   - `Linke Maustaste` gedr�ckt halten und ziehen
- 
+   - `Linke Maustaste` gedrückt halten und ziehen
+
  * Zoom
-   - `Mittlere Maustate` gedr�ckt halten und ziehen
-   
+   - `Mittlere Maustate` gedrückt halten und ziehen
+
  * Verschieben
-   - `Rechte Maustate` gedr�ckt halten und ziehen
+   - `Rechte Maustate` gedrückt halten und ziehen
 ---
 ### Vorraussetzungen
 
