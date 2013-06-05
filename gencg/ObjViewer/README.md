@@ -34,6 +34,7 @@ python main.py <obj-file>
 
  * Verschieben
    - `Rechte Maustate` gedrückt halten und ziehen
+
 ---
 ### Vorraussetzungen
 
