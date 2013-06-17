@@ -16,6 +16,8 @@ from renderer import Renderer
 import math
 import model as modellib
 import numpy as np
+import glhelper as glh
+import q
 
 WIDTH, HEIGHT = 500, 500
 KEY_ESCAPE = chr(27)
@@ -36,7 +38,6 @@ def updateView(func):
         glutPostRedisplay()
     return wrapper
 
-
 def mouseMotion(func):
     '''
     calclulates deltas for mouse-coords and caches the current ones
@@ -51,6 +52,7 @@ def mouseMotion(func):
         func(deltaX, deltaY)
     return wrapper
 
+@q
 @updateView
 def keyPressed(key, x, y):
     angle = 2
@@ -64,6 +66,7 @@ def keyPressed(key, x, y):
         model.rotate(angle, axis)
         model.saveOrientation()
 
+@q
 @updateView
 def mouseClicked(button, state, x, y):
     ''' handle mouse events '''
@@ -79,6 +82,7 @@ def mouseClicked(button, state, x, y):
     else:
         model.saveOrientation()
 
+@q
 @mouseMotion
 def rotateModel(deltaX, deltaY):
     ''' handle mouse motion '''
@@ -89,7 +93,8 @@ def rotateModel(deltaX, deltaY):
         angle = math.acos(dotP)
         axis = np.cross(startP, moveP)
         model.rotate(angle, axis)
-    
+
+@q    
 def projectOnSphere(x, y):
     r = min(WIDTH, HEIGHT) / 2.0
     x, y = x-WIDTH/2.0, HEIGHT/2.0 - y
@@ -98,13 +103,15 @@ def projectOnSphere(x, y):
     l = math.sqrt(x*x + y*y + z*z)
     return x/l, y/l, z/l
 
+@q
 @mouseMotion
 def zoomModel(deltaX,deltaY):
     length = math.sqrt(deltaX**2 + deltaY**2)
     mod = 1 if deltaY >= 0 else -1
     deltaZoom = length * mod / float(HEIGHT)
     model.adjustScale(deltaZoom)
-    
+
+@q    
 @mouseMotion
 def moveModel(deltaX, deltaY):
     move_factor = float(min(WIDTH, HEIGHT))
@@ -112,6 +119,7 @@ def moveModel(deltaX, deltaY):
     mY = float(deltaY) / move_factor
     model.move(mX, mY)
 
+@q
 @updateView
 def handleSpecialKeys(key, x, y):
     if key == GLUT_KEY_F1:
@@ -121,30 +129,34 @@ def handleSpecialKeys(key, x, y):
     elif key == GLUT_KEY_F3:
         oglRenderer.togglePerspective(WIDTH, HEIGHT)
 
+@q
 def reshape(width, height):
     global WIDTH, HEIGHT
     WIDTH, HEIGHT = width, height
     # Don't reshape if height or width is 0
     if WIDTH and HEIGHT:
         oglRenderer.reshape(WIDTH, HEIGHT)
-    
+
+@q    
 def main(filename):
     global model, camera, oglRenderer
     applyOSXHack()
     initGlut()
-    
+    glh.init()
     camera = Camera()
     model = modellib.parse(filename)
     oglRenderer = Renderer(model, camera, WIDTH, HEIGHT)
     registerCallbacks()
     glutMainLoop()
 
+@q
 def initGlut():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
     glutInitWindowSize(WIDTH, HEIGHT)
     glutCreateWindow("OBJ-Viewer - Christian Caspers")
-    
+
+@q
 def registerCallbacks():
     glutDisplayFunc(oglRenderer.display)
     glutReshapeFunc(reshape)
@@ -152,6 +164,7 @@ def registerCallbacks():
     glutMouseFunc(mouseClicked)
     glutSpecialFunc(handleSpecialKeys)
 
+@q
 def applyOSXHack():
     cwd = os.getcwd()
     os.chdir(cwd)

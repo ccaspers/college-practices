@@ -15,15 +15,17 @@ class Model(object):
     
     NORM_SIZE = 2.
 
-    def __init__(self, faces):
+    def __init__(self, faces, normals):
         self.faces = faces
+        self.normals = normals
         self.scale = 1
         self.faces_vbo_cache = None
+        self.normals_vbo_cache = None
         self.position = (0.0, 0.0, 0.0)
         self.orientation = np.matrix([[1.0, 0.0, 0.0, 0.0],
                                       [0.0, 1.0, 0.0, 0.0],
                                       [0.0, 0.0, 1.0, 0.0],
-                                      [0.0, 0.0, 0.0, 1.0]])
+                                      [0.0, 0.0, 0.0, 1.0]], dtype='f')
         self.rotate()
         
     def rotate(self, angle=0, axis=(0, 1.0, 0)):
@@ -36,7 +38,7 @@ class Model(object):
             r = np.matrix([[x*x*mc + c  ,  x*y*mc - z*s,  x*z*mc + y*s,  0],
                            [y*x*mc + z*s,  y*y*mc + c  ,  y*z*mc - x*s,  0],
                            [z*x*mc - y*s,  z*y*mc + x*s,  z*z*mc + c  ,  0],
-                           [0           ,  0           ,  0           ,  1]])
+                           [0           ,  0           ,  0           ,  1]], dtype='f')
             self.rotation = r.transpose()
             
     def getRotationMatrix(self):
@@ -59,7 +61,7 @@ class Model(object):
     @property
     def faces_vbo(self):
         if not self.faces_vbo_cache:
-            self.faces_vbo_cache = vbo.VBO(np.array(self.faces, 'f'))
+            self.faces_vbo_cache = vbo.VBO(np.array(self.faces + self.normals, 'f'))
         return self.faces_vbo_cache 
         
     def getBoundingBox(self):
@@ -70,11 +72,11 @@ class Model(object):
     
     def _movedToZero(self):
         center = self._getCenter()
-        return Model([[x - y for x, y in zip(t, center)] for t in self.faces])
+        return Model([[x - y for x, y in zip(t, center)] for t in self.faces], self.normals)
     
     def _normalizedScale(self):
         scalefactor = Model.NORM_SIZE / max([abs(maxV - minV) for minV, maxV in zip(*self.getBoundingBox())])
-        return Model([t * scalefactor for t in self.faces])    
+        return Model([t * scalefactor for t in self.faces], self.normals)    
     
     def _getCenter(self):
         return [(x + y) / 2 for x, y in zip(*self.getBoundingBox())]
@@ -89,26 +91,34 @@ def parse(objFile):
     contents = file(objFile).readlines()
     
     v = parseVertices(contents)
+    vn = parseNormals(contents)
     v_indexes = parseFaces(contents)
-    faces = [v[x] for x in v_indexes]
-    return Model(faces).normalized()
+    faces = [v[x[0]] for x in v_indexes]
+    if len(v_indexes[0]) == 3:
+        normals = [vn[x[2]] for x in v_indexes]
+    else:
+        normals = None
+    return Model(faces, normals).normalized()
 
 
 def parseVertices(contents):
     return parseCoordinates(contents, "v")
+
+def parseNormals(contents):
+    return parseCoordinates(contents, "vn")
 
 
 def parseFaces(contents):
     prefix = "f"
     lines =  extractMatch(contents, prefix + " .")
     lines = [line.strip(prefix + " ").split() for line in lines]
-    faces = [extract_vIndexes(line) for line in lines]
+    faces = [extract_indices(line) for line in lines]
     return [item for sublist in faces for item in sublist]
 
 
-def extract_vIndexes(line):
-    return [[int(t) - 1 if t else None for t in coord.split("/")][0] for coord in line]
-        
+def extract_indices(line):
+    return [[int(t) - 1 if t else None for t in coord.split("/")] for coord in line]
+
         
 def parseCoordinates(contents, prefix):
     lines =  extractMatch(contents, prefix + " .")
